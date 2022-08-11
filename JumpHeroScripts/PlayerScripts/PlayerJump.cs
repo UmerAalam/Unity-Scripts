@@ -31,7 +31,6 @@ public class PlayerJump : MonoBehaviour
     private void Update()
     {
         SetPower();
-        ReloadScene();
     }
     void SetPower()
     {
@@ -74,12 +73,9 @@ public class PlayerJump : MonoBehaviour
                 }
             }
         }
-    }
-    void ReloadScene()
-    {
-        if(transform.position.y <= -7f)
+        if(collision.gameObject.CompareTag("Dead"))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            GameOver.instance.ShowGameOverPanel();
         }
     }
 }
