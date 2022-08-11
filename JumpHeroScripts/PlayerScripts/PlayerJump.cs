@@ -2,21 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PlayerJump : MonoBehaviour
 {
     public static PlayerJump instance;
     [SerializeField] Rigidbody2D playerBody;
     [SerializeField] Animator playerAnim;
-
     [SerializeField] float forceX, forceY;
     [SerializeField] float thresHoldX, thresHoldY;
+    [SerializeField] Slider powerBar;
     bool setPower,didJump;
 
     private void Awake()
     {
+        GetPowerBar();
         MakeInstance();
-        
     }
     void Initialize()
     {
@@ -43,6 +44,7 @@ public class PlayerJump : MonoBehaviour
                 forceX = 6.5f;
             if (forceY > 13.5f)
                 forceY = 13.5f;
+            powerBar.value = forceX + forceY;
         }
     }
 
@@ -51,11 +53,13 @@ public class PlayerJump : MonoBehaviour
         this.setPower = setPower;
         if (!setPower)
         {
+            powerBar.value = 0f;
             Jump();
         }
     }
     void Jump()
     {
+        playerAnim.SetBool("Jump",true);
         playerBody.velocity = new Vector2(forceX,forceY);
         forceX = forceY = 0f;
         didJump = true;
@@ -67,9 +71,14 @@ public class PlayerJump : MonoBehaviour
             didJump = false;
             if (collision.gameObject.CompareTag("Platform"))
             {
-                if(GameManager.instance != null)
+                playerAnim.SetBool("Jump", false);
+                if (GameManager.instance != null)
                 {
                     GameManager.instance.CreateNewPlatformAndLerp(collision.gameObject.transform.position.x);
+                }
+                if(ScoreManager.instance != null)
+                {
+                    ScoreManager.instance.IncrementScore();
                 }
             }
         }
@@ -77,5 +86,10 @@ public class PlayerJump : MonoBehaviour
         {
             GameOver.instance.ShowGameOverPanel();
         }
+    }
+    void GetPowerBar()
+    {
+        powerBar = GameObject.Find("PowerBar").GetComponent<Slider>();
+        powerBar.value = 0f;
     }
 }
